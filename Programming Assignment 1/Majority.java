@@ -11,6 +11,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+/**
+ * The Majority class represents an algorithm to find the majority element in an array.
+ * A majority element is an element that appears more than half the size of the array.
+ * This class provides methods to generate a test array, find the majority element using a brute-force approach,
+ * and print the result along with the comparison count and the time taken.
+ */
 public class Majority {
 
     /**
