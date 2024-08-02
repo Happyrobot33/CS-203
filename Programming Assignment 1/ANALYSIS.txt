@@ -1,0 +1,113 @@
+THEORETICAL ANALYSIS
+Theoretically based on the algorithm I have made, the best and worst case should be as follows
+Best Case: O(n)
+This is because, if an array has only 1 unique element, then the majority element is the unique element itself. In this case, the algorithm will return the unique element in the first iteration itself. The only reason this ends up being O(n) is that the hash map needs to be created to have the unique elements in it, requiring iterating over every element.
+Worst Case: O(n)
+*technically* it would be O(2n) even though that is not valid notation.
+This is because, if an array has all unique elements, then there will be no majority element. This means that when the hash map is created, it will be the same count as the number of elements in the array. This also means when we loop over the hash map, we will be repeating the same number of comparisons as we would be doing on the main array when making the hash map. This is why the worst case is O(n).
+
+EMPIRICAL ANALYSIS
+Analyzing the empirical data, its hard to really conclude much about the time complexity. However, there is a slightly noticable trend that as the ammount of elements/unique elements increases, the time taken to find the majority element also increases. This is expected as the number of comparisons that need to be made also increases.
+I would conclude that the empirical results are not quite consistent with the theoretical due to both my computer doing multiple tasks, adding noise into the runtime speed, and that in some cases, like when there is 100 elements, it seems to run faster than most cases before it, while still having the same or more comparisons.
+
+Size, Duration, Unique Count, Majority Element, Comparison Count
+1, 7400, 1, 0, 1
+2, 7000, 1, 0, 1
+3, 13900, 3, -1, 3
+4, 9600, 3, -1, 3
+5, 11700, 3, -1, 3
+6, 9000, 5, -1, 5
+7, 13400, 5, -1, 5
+8, 10600, 5, -1, 5
+9, 10900, 6, -1, 6
+10, 11700, 9, -1, 9
+11, 9500, 7, -1, 7
+12, 24200, 9, -1, 9
+13, 11000, 8, -1, 8
+14, 12200, 9, -1, 9
+15, 33600, 10, -1, 10
+16, 16800, 10, -1, 10
+17, 16900, 13, -1, 13
+18, 15000, 13, -1, 13
+19, 21200, 13, -1, 13
+20, 10100, 14, -1, 14
+21, 17100, 15, -1, 15
+22, 20500, 15, -1, 15
+23, 14400, 15, -1, 15
+24, 18600, 18, -1, 18
+25, 13100, 17, -1, 17
+26, 14800, 19, -1, 19
+27, 12800, 19, -1, 19
+28, 20400, 16, -1, 16
+29, 12900, 18, -1, 18
+30, 13100, 20, -1, 20
+31, 19700, 20, -1, 20
+32, 15500, 21, -1, 21
+33, 11500, 20, -1, 20
+34, 12500, 24, -1, 24
+35, 15300, 25, -1, 25
+36, 12800, 23, -1, 23
+37, 14100, 25, -1, 25
+38, 21000, 22, -1, 22
+39, 41300, 26, -1, 26
+40, 13400, 24, -1, 24
+41, 16200, 25, -1, 25
+42, 14200, 29, -1, 29
+43, 15600, 27, -1, 27
+44, 14800, 32, -1, 32
+45, 18800, 28, -1, 28
+46, 14700, 29, -1, 29
+47, 17900, 33, -1, 33
+48, 17300, 27, -1, 27
+49, 17800, 32, -1, 32
+50, 16600, 31, -1, 31
+51, 17500, 32, -1, 32
+52, 16900, 37, -1, 37
+53, 30300, 35, -1, 35
+54, 17000, 31, -1, 31
+55, 20500, 35, -1, 35
+56, 28100, 36, -1, 36
+57, 14000, 36, -1, 36
+58, 12000, 36, -1, 36
+59, 14500, 39, -1, 39
+60, 14100, 36, -1, 36
+61, 29700, 37, -1, 37
+62, 14900, 43, -1, 43
+63, 12200, 40, -1, 40
+64, 30500, 41, -1, 41
+65, 11800, 43, -1, 43
+66, 11500, 39, -1, 39
+67, 17000, 41, -1, 41
+68, 13300, 45, -1, 45
+69, 12500, 42, -1, 42
+70, 23300, 47, -1, 47
+71, 15200, 43, -1, 43
+72, 13200, 44, -1, 44
+73, 13200, 44, -1, 44
+74, 14500, 48, -1, 48
+75, 20100, 49, -1, 49
+76, 19900, 51, -1, 51
+77, 16300, 47, -1, 47
+78, 19700, 50, -1, 50
+79, 32000, 54, -1, 54
+80, 17100, 48, -1, 48
+81, 16000, 52, -1, 52
+82, 19400, 53, -1, 53
+83, 19100, 50, -1, 50
+84, 16600, 51, -1, 51
+85, 15000, 52, -1, 52
+86, 22600, 56, -1, 56
+87, 17800, 55, -1, 55
+88, 18200, 54, -1, 54
+89, 20400, 58, -1, 58
+90, 39400, 61, -1, 61
+91, 16900, 54, -1, 54
+92, 17400, 61, -1, 61
+93, 17400, 63, -1, 63
+94, 15900, 65, -1, 65
+95, 18100, 61, -1, 61
+96, 15600, 66, -1, 66
+97, 23700, 65, -1, 65
+98, 35300, 65, -1, 65
+99, 13100, 62, -1, 62
+100, 9300, 61, -1, 61
