@@ -69,9 +69,9 @@ public class Anagram {
         List<List<String>> anagramSets = new ArrayList<>();
 
         //make a list for each word so we can remove sets of words that are anagrams
-        //this is a copy on write array list so we can remove elements while iterating
+        //this is a copy on write array list so we can remove elements while iterating. This has a performance hit but makes the iteration easier
         List<String> words = new CopyOnWriteArrayList<>();
-        //List<String> words = new ArrayList<>();
+
         //initialize the list of words
         for (String word : rawWords) {
             words.add(word);
