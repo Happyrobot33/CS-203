@@ -24,7 +24,8 @@ in Θ-notation), expressed in terms of the number of words n in the input file? 
 your answer.
 the theoretical worst case running time of the algorithm implemented here is O(n log n) where n is the number of words in the input file.
 by counting the frequency of the characters in the current word, we can put each word into a list that represents the different frequency sets of characters.
-the reason this becomes O(n log n) is because the sorting of the frequency sets of characters is O(n log n) and the insertion of the words into the list is O(n).
+the reason this is O(n log n) is because there may be a hash collission between two different frequency maps. This means in the worst case, a hashmap is O(log n).
+Combining this with that we need to loop through each word in the input file, we get O(n log n) as the worst case running time.
  */
 import java.io.File;
 import java.io.FileNotFoundException;
