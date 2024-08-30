@@ -15,11 +15,9 @@ neat and readable, you are free to use any format you like.
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Anagram {
     public static void main(String[] args) {
@@ -65,47 +63,37 @@ public class Anagram {
         //make a histogram for each line
         String[] rawWords = fileContents.split("\n");
 
+        List<wordData> wordDataList = new ArrayList<>();
+        
+        //we will pre-sort each word into the sorted version.
+        //for example, test becomes estt
+        //this is a direct comparison sort since each letter in ascii is already a ascending integer
+        for (String word : rawWords)
+        {
+            wordDataList.add(new wordData(word));
+        }
+
         //make a list of list of strings to store the anagram sets
         List<List<String>> anagramSets = new ArrayList<>();
 
-        //make a list for each word so we can remove sets of words that are anagrams
-        //this is a copy on write array list so we can remove elements while iterating. This has a performance hit but makes the iteration easier
-        List<String> words = new CopyOnWriteArrayList<>();
+        //sort the wordDataList
+        wordDataList.sort((a, b) -> a.compareTo(b));
 
-        //initialize the list of words
-        for (String word : rawWords) {
-            words.add(word);
-        }
-
-        //check line 1 and 2
-        //System.out.println(areAnagrams(lines[0].toLowerCase(), lines[1].toLowerCase()));
-
-        //we will pick out a word from the list, to compare to the rest of the words
-        //after comparing, we will remove the word we picked and all other words that are anagrams of it
-        //we use a trick of iterating backwards so we can remove elements while iterating through the list to avoid "ghost elements"
-        for (int i = words.size() - 1; i >= 0; i--) {
-            //check if in bounds of the list still
-            if (i >= words.size()) {
-                continue;
-            }
-
-            String word = words.get(i);
-            //remove the word from the list
-            words.remove(word);
-            //add the word to the anagram set
+        for (int i = 0; i < wordDataList.size(); i++) {
             List<String> anagramSet = new ArrayList<>();
-            anagramSet.add(word);
+            anagramSet.add(wordDataList.get(i).originalWord);
 
-            //check if the word is an anagram of any other word in the list
-            for (String wordTwo : words) {
-                if (areAnagrams(word.toLowerCase(), wordTwo.toLowerCase())) {
-                    //add the word to the anagram set
-                    anagramSet.add(wordTwo);
-                    words.remove(wordTwo);
+            for (int j = i + 1; j < wordDataList.size(); j++) {
+                if (wordDataList.get(i).sortedWord.equals(wordDataList.get(j).sortedWord)) {
+                    anagramSet.add(wordDataList.get(j).originalWord);
+                } else {
+                    break;
                 }
             }
 
-            anagramSets.add(anagramSet);
+            if (anagramSet.size() > 1) {
+                anagramSets.add(anagramSet);
+            }
         }
 
         //print each anagram set
@@ -116,25 +104,32 @@ public class Anagram {
         System.out.println("Number of anagram sets: " + anagramSets.size());
     }
 
-    static boolean areAnagrams(String baseWord, String wordTwo) {
-        //if they arent the same length they can never be anaagrams
-        if (baseWord.length() != wordTwo.length()) {
-            return false;
+
+    public static class wordData
+    {
+        public String originalWord;
+        public String sortedWord;
+
+        //initializer
+        public wordData(String originalWord)
+        {
+            this.originalWord = originalWord;
+
+            char[] characters = originalWord.toLowerCase().toCharArray();
+            Arrays.sort(characters);
+            this.sortedWord = new String(characters);
+        }
+        
+        //make a compare to
+        public int compareTo(wordData other)
+        {
+            return this.sortedWord.compareTo(other.sortedWord);
         }
 
-        Map<Character, Integer> histogram = new HashMap<>();
-
-        for (int i = 0; i < baseWord.length(); i++) {
-            histogram.compute(baseWord.charAt(i), (k, v) -> (v == null ? 0 : v) + 1);
-            histogram.compute(wordTwo.charAt(i), (k, v) -> (v == null ? 0 : v) - 1);
+        //tostring
+        public String toString()
+        {
+            return originalWord + " (" + sortedWord + ")";
         }
-
-        for (int count : histogram.values()) {
-            if (count != 0) {
-                return false;
-            }
-        }
-
-        return true;
     }
 }
