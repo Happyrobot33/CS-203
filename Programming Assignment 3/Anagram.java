@@ -5,7 +5,7 @@
  * Anagram Class, finds anagrams in a file
  */
 
-/*
+ /*
 Write a Java program which begins by prompting the user for the name of a file in the
 current directory. The file will contain an unknown number of words, with a single word on
 each line. (You may assume that there are no non-alphabetic characters in the file.) Your
@@ -22,14 +22,14 @@ neat and readable, you are free to use any format you like.
 What is the theoretical worst-case running time of the algorithm you implemented (i.e.
 in Θ-notation), expressed in terms of the number of words n in the input file? Justify
 your answer.
-the theoretical worst case running time of the algorithm implemented here is O(?) where n is the number of words in the input file.
+the theoretical worst case running time of the algorithm implemented here is O(n log n) where n is the number of words in the input file.
+by counting the frequency of the characters in the current word, we can put each word into a list that represents the different frequency sets of characters.
+the reason this becomes O(n log n) is because the sorting of the frequency sets of characters is O(n log n) and the insertion of the words into the list is O(n).
  */
-
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Scanner;
 
 /**
@@ -84,49 +84,69 @@ public class Anagram {
         //make a array of words from the file contents
         String[] rawWords = fileContents.split("\n");
 
-        //make a list of anagramWord objects to store the words
-        List<anagramWord> anagramWords = new ArrayList<>();
-
-        //we will pre-sort each word into the sorted version.
-        //for example, test becomes estt
-        for (String word : rawWords) {
-            anagramWords.add(new anagramWord(word));
-        }
-
-        //make a list of list of strings to store the anagram sets
-        List<List<String>> anagramSets = new ArrayList<>();
-
-        //sort the wordDataList
-        anagramWords.sort((a, b) -> a.compareTo(b));
-
-        for (int wordIndex = 0; wordIndex < anagramWords.size(); wordIndex++) {
-            //make a new anagram set
-            List<String> anagramSet = new ArrayList<>();
-            //add the current first word to the set
-            anagramSet.add(anagramWords.get(wordIndex).originalWord);
-
-            //loop forward in the list to find all matching anagrams
-            for (int followingIndex = wordIndex + 1; followingIndex < anagramWords.size(); followingIndex++) {
-                // if the starting word is an anagram of the following word, add it to the set
-                //we break out of the loop if the following word is not an anagram, as we have already sorted the list by characters
-                if (anagramWords.get(wordIndex).equals(anagramWords.get(followingIndex))) {
-                    anagramSet.add(anagramWords.get(followingIndex).originalWord);
-                } else {
-                    break;
-                }
-            }
-
-            anagramSets.add(anagramSet);
-            //shift the wordIndex forward to the end of the found anagrams to do the next search
-            wordIndex += anagramSet.size() - 1;
-        }
+        ArrayList<ArrayList<String>> anagrams = findAnagrams(rawWords);
 
         //print each anagram set
-        for (List<String> anagramSet : anagramSets) {
+        for (ArrayList<String> anagramSet : anagrams) {
             System.out.println(anagramSet);
         }
 
         //print the number of anagram sets
-        System.out.println("Number of anagram sets: " + anagramSets.size());
+        System.out.println("Number of anagram sets: " + anagrams.size());
+    }
+
+    /**
+     * This method finds the anagrams in the inputWords array. The method will
+     * return a hashmap with the key being the sorted version of the anagram,
+     * and the value being a list of the words that match as a anagram from the
+     * inputWords array.
+     *
+     * @param inputWords the array of words to find anagrams in
+     * @return a hashmap with the key being the sorted version of the anagram,
+     * and the value being a list of the words that match as a anagram from the
+     * inputWords array.
+     */
+    private static ArrayList<ArrayList<String>> findAnagrams(String[] inputWords) {
+
+        //Inner hashmap counts the frequency of each character in a string.
+        //The outer hashmap stores the inner hashmap as a key and the value is a list of strings that have the same frequency of characters.
+        HashMap<HashMap<Character, Integer>, ArrayList<String>> map = new HashMap<HashMap<Character, Integer>, ArrayList<String>>();
+
+        for (String word : inputWords) {
+            HashMap<Character, Integer> frequencyMap = new HashMap<>();
+
+            //ensure the word is lowercase
+            word = word.toLowerCase();
+
+            //count the frequency of each character in the string
+            for (int characterIndex = 0; characterIndex < word.length(); characterIndex++) {
+                char character = word.charAt(characterIndex);
+                //If the character is already in the frequency map, increment the count
+                if (frequencyMap.containsKey(character)) {
+                    int x = frequencyMap.get(character);
+                    frequencyMap.put(character, ++x); //must use prefix increment to increment the value before putting it back in the map. This is important!
+                } else {
+                    //If the character is not in the frequency map, add it with a count of 1
+                    frequencyMap.put(character, 1);
+                }
+            }
+
+            //If the same frequency map is already in the map, add the string to the list of strings with the same frequency map
+            if (map.containsKey(frequencyMap)) {
+                map.get(frequencyMap).add(word); 
+            }else {
+                //If the frequency map is not in the map, add it with the string as a list
+                ArrayList<String> tempList = new ArrayList<>();
+                tempList.add(word);
+                map.put(frequencyMap, tempList);
+            }
+        }
+
+        //return the values of the map as a list of lists
+        ArrayList<ArrayList<String>> result = new ArrayList<>();
+        for (HashMap<Character, Integer> temp : map.keySet()) {
+            result.add(map.get(temp));
+        }
+        return result;
     }
 }
