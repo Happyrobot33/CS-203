@@ -22,10 +22,7 @@ neat and readable, you are free to use any format you like.
 What is the theoretical worst-case running time of the algorithm you implemented (i.e.
 in Θ-notation), expressed in terms of the number of words n in the input file? Justify
 your answer.
-the theoretical worst case running time of the algorithm implemented here is O(n log n) where n is the number of words in the input file.
-This is because the algorithm first sorts the list of words by their sorted version, which is O(n log n) time complexity.
-Then it loops through the list of words, comparing each word to the next word in the list. This is O(n) time complexity.
-Therefore, the total time complexity is O(n log n + n) = O(n log n).
+the theoretical worst case running time of the algorithm implemented here is O(?) where n is the number of words in the input file.
  */
 
 
