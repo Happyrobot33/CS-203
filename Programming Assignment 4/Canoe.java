@@ -113,14 +113,37 @@ public class Canoe {
 
         memo = new int[numPosts][numPosts];
         int memoCalc = Memoization(0, numPosts - 1, costs);
-        int dynamicCalc = dynamicProgramming(numPosts, costs)[0][numPosts - 1];
+        int[][] dp = dynamicProgramming(numPosts, costs);
 
         System.out.println("Memoization: " + memoCalc);
-        System.out.println("Dynamic Programming: " + dynamicCalc);
+        System.err.print("Optimal Path: ");
+        //print the optimal path
+        for (int i = 0; i < optimalPath.length - 1; i++) {
+            System.out.print(optimalPath[i] + " ");
+        }
+        System.out.println();
+
+        //print the memo matrix
+        for (int row = 0; row < memo.length; row++) {
+            for (int col = 0; col < memo[row].length; col++) {
+                System.out.print(memo[row][col] + " ");
+            }
+            System.out.println();
+        }
+
+        System.out.println("Dynamic Programming: " + dp[0][numPosts - 1]);
+        //print the dp matrix
+        for (int row = 0; row < dp.length; row++) {
+            for (int col = 0; col < dp[row].length; col++) {
+                System.out.print(dp[row][col] + " ");
+            }
+            System.out.println();
+        }
     }
 
     //memoization method
     private static int[][] memo; //data structure to store the memoized values
+    private static int[] optimalPath; //data structure to store the optimal path
     public static int Memoization(int startingPost, int endingPost, int[][] costs) {
         //base case, no cost if your already at or beyond the end
         if (startingPost >= endingPost) {
@@ -138,7 +161,11 @@ public class Canoe {
         //iterate through the intermediate posts
         for (int intermediatePost = startingPost + 1; intermediatePost <= endingPost; intermediatePost++) {
             int possibleLowerCost = costs[startingPost][intermediatePost] + Memoization(intermediatePost, endingPost, costs);
+            
+            //if true, a new optimal path has been found
             if (possibleLowerCost < minCost) {
+                //save the new optimal path
+                optimalPath = new int[]{startingPost, intermediatePost, endingPost};
                 minCost = possibleLowerCost;
             }
         }
@@ -163,15 +190,6 @@ public class Canoe {
                     dp[startingPost][endingPost] = Math.min(dp[startingPost][endingPost], costs[startingPost][intermediatePost] + dp[intermediatePost][endingPost]);
                 }
             }
-        }
-
-        System.out.println("Dynamic Programming Optimal Cost Matrix: ");
-        //print the DP
-        for (int row = 0; row < dp.length; row++) {
-            for (int col = 0; col < dp[row].length; col++) {
-                System.out.print(dp[row][col] + " ");
-            }
-            System.out.println();
         }
         return dp;
     }
