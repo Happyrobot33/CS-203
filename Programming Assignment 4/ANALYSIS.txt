@@ -1,0 +1,16 @@
+A description of the (recursive) formula used to calculate the optimal costs
+
+
+A theoretical analysis of the runtime of the algorithm
+Dynamic Programming: O(n
+Memoization: O(n
+
+A comparison of the empirical timing results of both algorithms, and an explanation
+of the observed results
+Dynamic Programming: 900 ns
+Memoization: 2000 ns
+So here is where things get interesting. Running on my machine, with the given test data, the dynamic programming method is faster.
+But its not that simple. Upon experimentation, I found that the numbers would fluctuate wildly based on the order in which I called the two algorithms.
+Alongside that, if I "warm up" the JVM by calling the algorithm once before then recording the time, it affects the running time randomly again.
+On my hardware atleast, it would seem like the dynamic programming method is faster, even though it should actually be slower.
+My hypothesis on why this is is something to due with CPU caching or JVM caching, wherin since I am not using full recursion for my dynamic programming method, the JVM is able to be more efficient due to not needing to allocate as much memory to active recursive calls.

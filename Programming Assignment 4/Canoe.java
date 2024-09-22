@@ -3,21 +3,18 @@
  * CS-203, 2024
  * Programming Assignment 4
  */
-
- /*
-
- */
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 /**
- * This class represents a program to find anagrams in a file. The program will
- * read a file and find all sets of anagrams in the file. The program will print
- * the sets of anagrams to standard output, as well as the number of sets found.
+ * This class reads a file and parses the contents to find the optimal path for
+ * a canoe to travel from the first post to the last post. The canoe can only
+ * travel from post to post in a straight line, and the cost of traveling from
+ * post i to post j is given in the file. The goal is to find the path that
+ * minimizes the cost of traveling from the first post to the last post.
  */
 public class Canoe {
-
     public static void main(String[] args) {
         String filePath = "";
         String currentDirectory = System.getProperty("user.dir");
@@ -25,7 +22,7 @@ public class Canoe {
         //TODO: REMOVE THIS!
         //hardcode the path for now for easier testing
         args = new String[1];
-        args[0] = currentDirectory + "/Programming Assignment 4/smallTest.txt";
+        args[0] = currentDirectory + "/Programming Assignment 4/smallTest2.txt";
 
         //check if no args are passed
         if (args.length == 0) {
@@ -104,93 +101,150 @@ public class Canoe {
         }
 
         //print out the array, with the first index being x and the second index being y
-        for (int row = 0; row < costs.length; row++) {
-            for (int col = 0; col < costs[row].length; col++) {
-                System.out.print(costs[row][col] + " ");
+        System.out.println("Costs Matrix:");
+        for (int[] cost : costs) {
+            for (int col = 0; col < cost.length; col++) {
+                if (cost[col] == Integer.MAX_VALUE) {
+                    System.out.print("   ");
+                } else {
+                    System.out.print(cost[col] + " ");
+                }
             }
             System.out.println();
         }
 
-        memo = new int[numPosts][numPosts];
-        int memoCalc = Memoization(0, numPosts - 1, costs);
-        int[][] dp = dynamicProgramming(numPosts, costs);
+        //cache the timer. This makes sure both exist in memory first to avoid alloc time
+        long startTime = 0;
+        long endTime = 0;
 
-        System.out.println("Memoization: " + memoCalc);
-        System.err.print("Optimal Path: ");
-        //print the optimal path
-        for (int i = 0; i < optimalPath.length - 1; i++) {
-            System.out.print(optimalPath[i] + " ");
-        }
-        System.out.println();
+        // warm up the JVM. Not doing this makes the first run take WAY longer
+        memoizationApproach(0, numPosts - 1, costs, numPosts);
 
-        //print the memo matrix
-        for (int row = 0; row < memo.length; row++) {
-            for (int col = 0; col < memo[row].length; col++) {
-                System.out.print(memo[row][col] + " ");
-            }
-            System.out.println();
-        }
+        //start a timer
+        CanoeData memoization = memoizationApproach(0, numPosts - 1, costs, numPosts);
 
-        System.out.println("Dynamic Programming: " + dp[0][numPosts - 1]);
-        //print the dp matrix
-        for (int row = 0; row < dp.length; row++) {
-            for (int col = 0; col < dp[row].length; col++) {
-                System.out.print(dp[row][col] + " ");
-            }
-            System.out.println();
-        }
+        //warm up the JVM. Not doing this makes the first run take WAY longer
+        dynamicProgrammingApproach(0, numPosts - 1, costs, numPosts);
+        //start a timer
+        CanoeData dynamic = dynamicProgrammingApproach(0, numPosts - 1, costs, numPosts);
+
+        //print the info for the memoization approach
+        System.out.println("Memoization Approach");
+        memoization.printOptimalMatrix();
+        memoization.printCost();
+        memoization.printPath();
+        System.out.println("Time: " + memoization.nanoSeconds + " ns");
+
+        //print the info for the dynamic programming approach
+        System.out.println("Dynamic Programming Approach");
+        dynamic.printOptimalMatrix();
+        dynamic.printCost();
+        dynamic.printPath();
+        System.out.println("Time: " + dynamic.nanoSeconds + " ns");
     }
 
-    //memoization method
-    private static int[][] memo; //data structure to store the memoized values
-    private static int[] optimalPath; //data structure to store the optimal path
-    public static int Memoization(int startingPost, int endingPost, int[][] costs) {
-        //base case, no cost if your already at or beyond the end
-        if (startingPost >= endingPost) {
-            return 0;
-        }
 
-        //use the memoized value if it exists
-        if (memo[startingPost][endingPost] != 0) {
-            return memo[startingPost][endingPost];
-        }
+    /**
+     * A 2D array used for memoization to store the optimal costs.
+     * Each entry memoOptimalCosts[i][j] represents the optimal cost
+     * for a specific subproblem defined by indices i and j.
+     * This is external to avoid passing by value, since you cannot pass by reference in Java unlike C# where you can :(
+     */
+    public static int[][] memoOptimalCosts;
 
-        //use the maximum value for the minCost
-        int minCost = Integer.MAX_VALUE;
-
-        //iterate through the intermediate posts
-        for (int intermediatePost = startingPost + 1; intermediatePost <= endingPost; intermediatePost++) {
-            int possibleLowerCost = costs[startingPost][intermediatePost] + Memoization(intermediatePost, endingPost, costs);
-            
-            //if true, a new optimal path has been found
-            if (possibleLowerCost < minCost) {
-                //save the new optimal path
-                optimalPath = new int[]{startingPost, intermediatePost, endingPost};
-                minCost = possibleLowerCost;
-            }
-        }
-
-        //store the minCost in the memo
-        memo[startingPost][endingPost] = minCost;
-
-        return minCost;
-    }
-
-    public static int[][] dynamicProgramming(int numPosts, int[][] costs) {
-        //create a 2d array to store the costs
-        int[][] dp = new int[numPosts][numPosts];
-        for (int len = 2; len <= numPosts; len++) {
-            for (int startingPost = 0; startingPost < numPosts - len + 1; startingPost++) {
-                //calculate the ending post
-                int endingPost = startingPost + len - 1;
-                dp[startingPost][endingPost] = costs[startingPost][endingPost];
-
-                //iterate through the intermediate posts
-                for (int intermediatePost = startingPost + 1; intermediatePost < endingPost; intermediatePost++) {
-                    dp[startingPost][endingPost] = Math.min(dp[startingPost][endingPost], costs[startingPost][intermediatePost] + dp[intermediatePost][endingPost]);
+    /**
+     * Computes the minimum cost to travel from the start post to the end post using a memoization approach.
+     *
+     * @param start The starting post index.
+     * @param end The ending post index.
+     * @param costMatrix A 2D array where costMatrix[i][j] represents the cost to travel directly from post i to post j.
+     * @param numPosts The total number of posts.
+     * @return A CanoeData object containing the minimum cost, the optimal cost matrix, and the computation time.
+     */
+    private static CanoeData memoizationApproach(int start, int end, int[][] costMatrix, int numPosts) {
+        // Initialize memoization table with -1 (indicating uncomputed values)
+        memoOptimalCosts = new int[numPosts][numPosts];
+        for (int row = 0; row < numPosts; row++) {
+            for (int col = 0; col < numPosts; col++) {
+                if (row == col) {
+                    memoOptimalCosts[row][col] = 0;
+                } else {
+                    memoOptimalCosts[row][col] = -1;
                 }
             }
         }
-        return dp;
+
+        long startTime = System.nanoTime();
+
+        //we technically dont need to do this additional looping, but it ensures that thre resulting optimal cost matrix is fully populated
+        for (int startpost = 0; startpost < numPosts; startpost++) {
+            for (int endpost = startpost + 1; endpost < numPosts; endpost++) {
+                computeOptimalCost(startpost, endpost, costMatrix);
+            }
+        }
+        long endTime = System.nanoTime();
+
+        // Return the result in CanoeData
+        CanoeData data = new CanoeData(memoOptimalCosts[start][end], memoOptimalCosts, endTime - startTime);
+        return data;
+    }
+
+    private static int computeOptimalCost(int startpost, int endpost, int[][] costMatrix) {
+        // If the value is already computed, return the cached result
+        if (memoOptimalCosts[startpost][endpost] != -1) {
+            return memoOptimalCosts[startpost][endpost];
+        }
+
+        // Initialize the optimal cost to a large value
+        int minCost = Integer.MAX_VALUE;
+
+        // Try every possible intermediate point intermediatePost (between row+1 and col)
+        for (int intermediatePost = startpost + 1; intermediatePost <= endpost; intermediatePost++) {
+            int cost = costMatrix[startpost][intermediatePost] + computeOptimalCost(intermediatePost, endpost, costMatrix);
+            minCost = Math.min(minCost, cost);
+        }
+
+        // Store the computed value in the memoization table
+        memoOptimalCosts[startpost][endpost] = minCost;
+
+        // Return the computed cost
+        return minCost;
+    }
+
+    /**
+     * Computes the minimum cost to travel from the start post to the end post using a dynamic programming approach.
+     *
+     * @param start The starting post index.
+     * @param end The ending post index.
+     * @param costMatrix A 2D array where costMatrix[i][j] represents the cost to travel directly from post i to post j.
+     * @param numPosts The total number of posts.
+     * @return A CanoeData object containing the minimum cost, the optimal cost matrix, and the computation time.
+     */
+    private static CanoeData dynamicProgrammingApproach(int start, int end, int[][] costMatrix, int numPosts) {
+        int[][] optimalCosts = new int[numPosts][numPosts];
+
+        // Initialize the base cases: cost from any post to itself is 0
+        for (int diagonal = 0; diagonal < numPosts; diagonal++) {
+            optimalCosts[diagonal][diagonal] = 0;
+        }
+
+        long startTime = System.nanoTime();
+        // Fill the optimalCosts array using the dynamic programming recurrence
+        for (int length = 2; length <= numPosts; length++) {  // subproblem length (distance between row and col)
+            for (int startPost = 0; startPost <= numPosts - length; startPost++) {
+                int subEndPost = startPost + length - 1;  // The end point of the current subproblem
+                optimalCosts[startPost][subEndPost] = Integer.MAX_VALUE;  // Initialize with a large number
+
+                // Try every possible intermediate point intermediatePost
+                for (int intermediatePost = startPost + 1; intermediatePost <= subEndPost; intermediatePost++) {
+                    optimalCosts[startPost][subEndPost] = Math.min(optimalCosts[startPost][subEndPost], costMatrix[startPost][intermediatePost] + optimalCosts[intermediatePost][subEndPost]);
+                }
+            }
+        }
+        long endTime = System.nanoTime();
+
+        //return the data
+        CanoeData data = new CanoeData(optimalCosts[start][end], optimalCosts, endTime - startTime);
+        return data;
     }
 }
