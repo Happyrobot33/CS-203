@@ -15,15 +15,13 @@ import java.util.Scanner;
  * minimizes the cost of traveling from the first post to the last post.
  */
 public class Canoe {
-
     public static void main(String[] args) {
         String filePath = "";
         String currentDirectory = System.getProperty("user.dir");
 
-        //TODO: REMOVE THIS!
-        //hardcode the path for now for easier testing
-        args = new String[1];
-        args[0] = currentDirectory + "/Programming Assignment 4/smallTest3.txt";
+        //Hardcodable path to make testing easier
+        /* args = new String[1];
+        args[0] = currentDirectory + "/Programming Assignment 4/smallTest3.txt"; */
 
         //check if no args are passed
         if (args.length == 0) {
@@ -142,6 +140,9 @@ public class Canoe {
         dynamic.printCost();
         dynamic.printPath();
         System.out.println("Time: " + dynamic.nanoSeconds + " ns");
+
+        System.out.println("Memoization Count: " + memoCount);
+        System.out.println("Dynamic Count: " + dynamicCount);
     }
 
     /**
@@ -166,6 +167,7 @@ public class Canoe {
      * matrix, and the computation time.
      */
     private static CanoeData memoizationApproach(int start, int end, int[][] costMatrix, int numPosts) {
+        memoCount = 0;
         // Initialize memoization table with -1 (indicating uncomputed values)
         memoOptimalCosts = new int[numPosts][numPosts];
         for (int row = 0; row < numPosts; row++) {
@@ -180,12 +182,12 @@ public class Canoe {
 
         long startTime = System.nanoTime();
 
-        //we technically dont need to do this additional looping, but it ensures that the resulting optimal cost matrix is fully populated
+        //loop through to ensure that all values are computed
         for (int startpost = 0; startpost < numPosts; startpost++) {
             for (int endpost = startpost + 1; endpost < numPosts; endpost++) {
+                computeOptimalCost(start, end, costMatrix);
             }
         }
-        computeOptimalCost(start, end, costMatrix);
         long endTime = System.nanoTime();
 
         // Return the result in CanoeData
@@ -193,6 +195,23 @@ public class Canoe {
         return data;
     }
 
+    /**
+     * A static counter to keep track of the number of times memoization is
+     * used.
+     */
+    static int memoCount = 0;
+
+    /**
+     * Computes the optimal cost to travel from the start post to the end post
+     * using a given cost matrix. This method uses memoization to cache
+     * previously computed results for efficiency.
+     *
+     * @param startpost The starting post index.
+     * @param endpost The ending post index.
+     * @param costMatrix A 2D array representing the cost matrix where
+     * costMatrix[i][j] is the cost to travel from post i to post j.
+     * @return The minimum cost to travel from the start post to the end post.
+     */
     private static int computeOptimalCost(int startpost, int endpost, int[][] costMatrix) {
         // If the value is already computed, return the cached result
         if (memoOptimalCosts[startpost][endpost] != -1) {
@@ -204,6 +223,7 @@ public class Canoe {
 
         // Try every possible intermediate point intermediatePost (between row+1 and col)
         for (int intermediatePost = startpost + 1; intermediatePost <= endpost; intermediatePost++) {
+            memoCount++;
             int cost = costMatrix[startpost][intermediatePost] + computeOptimalCost(intermediatePost, endpost, costMatrix);
             minCost = Math.min(minCost, cost);
         }
@@ -214,6 +234,11 @@ public class Canoe {
         // Return the computed cost
         return minCost;
     }
+
+    /**
+     * A static counter to keep track of the number of dynamic operations.
+     */
+    static int dynamicCount = 0;
 
     /**
      * Computes the minimum cost to travel from the start post to the end post
@@ -228,6 +253,7 @@ public class Canoe {
      * matrix, and the computation time.
      */
     private static CanoeData dynamicProgrammingApproach(int start, int end, int[][] costMatrix, int numPosts) {
+        dynamicCount = 0;
         int[][] optimalCosts = new int[numPosts][numPosts];
 
         // Initialize the base cases: cost from any post to itself is 0
@@ -244,6 +270,7 @@ public class Canoe {
 
                 // Try every possible intermediate point intermediatePost
                 for (int intermediatePost = startPost + 1; intermediatePost <= subEndPost; intermediatePost++) {
+                    dynamicCount++;
                     optimalCosts[startPost][subEndPost] = Math.min(optimalCosts[startPost][subEndPost], costMatrix[startPost][intermediatePost] + optimalCosts[intermediatePost][subEndPost]);
                 }
             }
