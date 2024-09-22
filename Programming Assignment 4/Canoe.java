@@ -15,6 +15,7 @@ import java.util.Scanner;
  * minimizes the cost of traveling from the first post to the last post.
  */
 public class Canoe {
+
     public static void main(String[] args) {
         String filePath = "";
         String currentDirectory = System.getProperty("user.dir");
@@ -22,7 +23,7 @@ public class Canoe {
         //TODO: REMOVE THIS!
         //hardcode the path for now for easier testing
         args = new String[1];
-        args[0] = currentDirectory + "/Programming Assignment 4/smallTest2.txt";
+        args[0] = currentDirectory + "/Programming Assignment 4/smallTest3.txt";
 
         //check if no args are passed
         if (args.length == 0) {
@@ -143,23 +144,26 @@ public class Canoe {
         System.out.println("Time: " + dynamic.nanoSeconds + " ns");
     }
 
-
     /**
-     * A 2D array used for memoization to store the optimal costs.
-     * Each entry memoOptimalCosts[i][j] represents the optimal cost
-     * for a specific subproblem defined by indices i and j.
-     * This is external to avoid passing by value, since you cannot pass by reference in Java unlike C# where you can :(
+     * A 2D array used for memoization to store the optimal costs. Each entry
+     * memoOptimalCosts[i][j] represents the optimal cost for a specific
+     * subproblem defined by indices i and j. This is external to avoid passing
+     * by value, since you cannot pass by reference in Java unlike C# where you
+     * can :(
      */
     public static int[][] memoOptimalCosts;
 
     /**
-     * Computes the minimum cost to travel from the start post to the end post using a memoization approach.
+     * Computes the minimum cost to travel from the start post to the end post
+     * using a memoization approach.
      *
      * @param start The starting post index.
      * @param end The ending post index.
-     * @param costMatrix A 2D array where costMatrix[i][j] represents the cost to travel directly from post i to post j.
+     * @param costMatrix A 2D array where costMatrix[i][j] represents the cost
+     * to travel directly from post i to post j.
      * @param numPosts The total number of posts.
-     * @return A CanoeData object containing the minimum cost, the optimal cost matrix, and the computation time.
+     * @return A CanoeData object containing the minimum cost, the optimal cost
+     * matrix, and the computation time.
      */
     private static CanoeData memoizationApproach(int start, int end, int[][] costMatrix, int numPosts) {
         // Initialize memoization table with -1 (indicating uncomputed values)
@@ -176,12 +180,12 @@ public class Canoe {
 
         long startTime = System.nanoTime();
 
-        //we technically dont need to do this additional looping, but it ensures that thre resulting optimal cost matrix is fully populated
+        //we technically dont need to do this additional looping, but it ensures that the resulting optimal cost matrix is fully populated
         for (int startpost = 0; startpost < numPosts; startpost++) {
             for (int endpost = startpost + 1; endpost < numPosts; endpost++) {
-                computeOptimalCost(startpost, endpost, costMatrix);
             }
         }
+        computeOptimalCost(start, end, costMatrix);
         long endTime = System.nanoTime();
 
         // Return the result in CanoeData
@@ -212,13 +216,16 @@ public class Canoe {
     }
 
     /**
-     * Computes the minimum cost to travel from the start post to the end post using a dynamic programming approach.
+     * Computes the minimum cost to travel from the start post to the end post
+     * using a dynamic programming approach.
      *
      * @param start The starting post index.
      * @param end The ending post index.
-     * @param costMatrix A 2D array where costMatrix[i][j] represents the cost to travel directly from post i to post j.
+     * @param costMatrix A 2D array where costMatrix[i][j] represents the cost
+     * to travel directly from post i to post j.
      * @param numPosts The total number of posts.
-     * @return A CanoeData object containing the minimum cost, the optimal cost matrix, and the computation time.
+     * @return A CanoeData object containing the minimum cost, the optimal cost
+     * matrix, and the computation time.
      */
     private static CanoeData dynamicProgrammingApproach(int start, int end, int[][] costMatrix, int numPosts) {
         int[][] optimalCosts = new int[numPosts][numPosts];
